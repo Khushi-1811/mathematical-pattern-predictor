@@ -428,3 +428,118 @@ export const generateNextAlternatingElements = (sequence: number[], oddDiff: num
   
   return nextElements;
 };
+
+export const detectComplexAlternatingPattern = (sequence: number[]): [boolean, string, string, number[]] => {
+  if (sequence.length < 5) return [false, '', '', []];
+  
+  const oddPositions = sequence.filter((_, i) => i % 2 === 0);
+  const evenPositions = sequence.filter((_, i) => i % 2 === 1);
+  
+  // Try to identify operations between consecutive elements
+  const oddToEvenOps = [];
+  const evenToOddOps = [];
+  
+  for (let i = 0; i < sequence.length - 1; i++) {
+    const current = sequence[i];
+    const next = sequence[i + 1];
+    
+    // Calculate possible operations
+    const diff = next - current;
+    const ratio = next / current;
+    const power = Math.log(next) / Math.log(current);
+    
+    if (i % 2 === 0) {
+      // Odd to even
+      if (Math.abs(ratio - Math.round(ratio)) < 0.0001) {
+        oddToEvenOps.push(`multiply:${Math.round(ratio)}`);
+      } else if (Math.abs(power - Math.round(power)) < 0.0001) {
+        oddToEvenOps.push(`power:${Math.round(power)}`);
+      } else {
+        oddToEvenOps.push(`add:${diff}`);
+      }
+    } else {
+      // Even to odd
+      if (Math.abs(ratio - Math.round(ratio)) < 0.0001) {
+        evenToOddOps.push(`multiply:${Math.round(ratio)}`);
+      } else if (Math.abs(power - Math.round(power)) < 0.0001) {
+        evenToOddOps.push(`power:${Math.round(power)}`);
+      } else {
+        evenToOddOps.push(`add:${diff}`);
+      }
+    }
+  }
+  
+  // Check if operations are consistent
+  const isOddToEvenConsistent = oddToEvenOps.every(op => op === oddToEvenOps[0]);
+  const isEvenToOddConsistent = evenToOddOps.every(op => op === evenToOddOps[0]);
+  
+  if (isOddToEvenConsistent && isEvenToOddConsistent) {
+    // Extract operation details
+    const [oddToEvenOp, oddToEvenValue] = oddToEvenOps[0].split(':');
+    const [evenToOddOp, evenToOddValue] = evenToOddOps[0].split(':');
+    
+    // Calculate next elements
+    const lastIsOdd = (sequence.length - 1) % 2 === 0;
+    const nextElements = [];
+    
+    let current = sequence[sequence.length - 1];
+    
+    for (let i = 0; i < 3; i++) {
+      const isOddToEven = (sequence.length + i - 1) % 2 === 0;
+      const [op, valStr] = isOddToEven ? [oddToEvenOp, oddToEvenValue] : [evenToOddOp, evenToOddValue];
+      const val = parseFloat(valStr);
+      
+      if (op === 'add') {
+        current = current + val;
+      } else if (op === 'multiply') {
+        current = current * val;
+      } else if (op === 'power') {
+        current = Math.pow(current, val);
+      }
+      
+      nextElements.push(current);
+    }
+    
+    return [true, oddToEvenOps[0], evenToOddOps[0], nextElements];
+  }
+  
+  return [false, '', '', []];
+};
+
+export const detectAlternatingDifferencePattern = (sequence: number[]): [boolean, number[], number[]] => {
+  if (sequence.length < 6) return [false, [], []];
+  
+  const differences = getSequenceDifferences(sequence);
+  
+  // Try pattern lengths from 2 to 4
+  for (let patternLength = 2; patternLength <= 4; patternLength++) {
+    if (differences.length < patternLength * 2) continue;
+    
+    let isPattern = true;
+    const pattern = differences.slice(0, patternLength);
+    
+    // Check if differences follow the pattern
+    for (let i = patternLength; i < differences.length; i++) {
+      if (Math.abs(differences[i] - pattern[i % patternLength]) > 0.0001) {
+        isPattern = false;
+        break;
+      }
+    }
+    
+    if (isPattern) {
+      // Calculate next elements
+      const nextElements = [];
+      let current = sequence[sequence.length - 1];
+      
+      for (let i = 0; i < 3; i++) {
+        const nextDiff = pattern[(differences.length + i) % patternLength];
+        current += nextDiff;
+        nextElements.push(current);
+      }
+      
+      return [true, pattern, nextElements];
+    }
+  }
+  
+  return [false, [], []];
+};

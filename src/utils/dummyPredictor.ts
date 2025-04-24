@@ -1,3 +1,4 @@
+
 import { 
   PredictionResult, 
   SequenceRule, 
@@ -18,7 +19,9 @@ import {
   checkCyclicPattern,
   checkSpecificPattern7108,
   detectAlternatingPatternWithStep,
-  generateNextAlternatingElements
+  generateNextAlternatingElements,
+  detectComplexAlternatingPattern,
+  detectAlternatingDifferencePattern
 } from "./sequenceUtils";
 
 export const predictSequence = (sequence: number[]): PredictionResult => {
@@ -29,6 +32,37 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
       ruleDescription: 'Need at least 3 numbers to predict a pattern.',
       formula: 'N/A',
       confidence: 0
+    };
+  }
+
+  // New check for complex alternating pattern with different operations
+  const [hasComplexAltPattern, oddToEvenOp, evenToOddOp, complexNextElements] = detectComplexAlternatingPattern(sequence);
+  if (hasComplexAltPattern) {
+    const oddPositions = sequence.filter((_, i) => i % 2 === 0);
+    const evenPositions = sequence.filter((_, i) => i % 2 === 1);
+    
+    // Parse operations for description
+    const oddToEvenDesc = oddToEvenOp.replace('add:', '+').replace('multiply:', '×').replace('power:', '^');
+    const evenToOddDesc = evenToOddOp.replace('add:', '+').replace('multiply:', '×').replace('power:', '^');
+    
+    return {
+      nextElements: complexNextElements,
+      ruleType: 'alternating',
+      ruleDescription: `Complex alternating pattern: odd to even ${oddToEvenDesc}, even to odd ${evenToOddDesc}`,
+      formula: `Alternating operations between odd/even positions`,
+      confidence: 0.95
+    };
+  }
+  
+  // Check for alternating differences pattern with multiple steps
+  const [hasAltDiffPattern, diffPattern, altDiffNextElements] = detectAlternatingDifferencePattern(sequence);
+  if (hasAltDiffPattern) {
+    return {
+      nextElements: altDiffNextElements,
+      ruleType: 'alternating',
+      ruleDescription: `Cyclic differences pattern: [${diffPattern.map(d => formatNumberWithPrecision(d)).join(', ')}]`,
+      formula: `Differences alternate in a cycle of ${diffPattern.length}`,
+      confidence: 0.94
     };
   }
 
