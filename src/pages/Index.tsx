@@ -35,7 +35,7 @@ const Index: React.FC = () => {
 
         <div className="mt-16 border-t border-gray-200 pt-8 text-sm text-center text-muted-foreground">
           <p>
-            A frontend prototype for a mathematical pattern recognition system.
+            Mathematical Pattern Predictor | Powered by Khushi Chaklasiya
           </p>
         </div>
       </div>

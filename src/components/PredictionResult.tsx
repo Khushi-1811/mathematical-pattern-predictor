@@ -15,6 +15,13 @@ interface PredictionResultProps {
 const PredictionResult: React.FC<PredictionResultProps> = ({ sequence, result }) => {
   const confidencePercentage = Math.round(result.confidence * 100);
   
+  const getPatternClassName = () => {
+    if (result.confidence > 0.9) return "bg-green-100 text-green-800 border-green-200";
+    if (result.confidence > 0.7) return "bg-blue-100 text-blue-800 border-blue-200";
+    if (result.confidence > 0.5) return "bg-amber-100 text-amber-800 border-amber-200";
+    return "bg-gray-100 text-gray-800 border-gray-200";
+  };
+  
   return (
     <div className="space-y-8 mb-12">
       <Card>
@@ -58,7 +65,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ sequence, result })
                   <span>Confidence Score</span>
                   <span className="font-medium">{confidencePercentage}%</span>
                 </div>
-                <Progress value={confidencePercentage} />
+                <Progress value={confidencePercentage} className={result.confidence > 0.8 ? "bg-green-100" : ""} />
               </div>
             </div>
           </div>
@@ -67,13 +74,13 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ sequence, result })
             <h3 className="text-lg font-medium mb-3">Sequence Values</h3>
             <div className="flex flex-wrap gap-2 items-center">
               {sequence.map((num, index) => (
-                <div key={`original-${index}`} className="sequence-number">
+                <div key={`original-${index}`} className="px-3 py-1 rounded bg-muted font-mono">
                   {formatNumberWithPrecision(num)}
                 </div>
               ))}
               <div className="mx-2 text-muted-foreground">→</div>
               {result.nextElements.map((num, index) => (
-                <div key={`predicted-${index}`} className="sequence-number predicted">
+                <div key={`predicted-${index}`} className="px-3 py-1 rounded bg-green-100 text-green-800 font-mono">
                   {formatNumberWithPrecision(num)}
                 </div>
               ))}
