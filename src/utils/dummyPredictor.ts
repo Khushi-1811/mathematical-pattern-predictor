@@ -519,8 +519,7 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
   // Check for consecutive even/odd pattern
   const [hasConsecutivePattern, startType, groupSize] = checkConsecutiveEvenOddPattern(sequence);
   if (hasConsecutivePattern) {
-    const lastNum = sequence[sequence.length - 1];
-    const isLastEven = lastNum % 2 === 0;
+    let lastNum = sequence[sequence.length - 1]; // Changed from const to let
     const currentGroupPos = sequence.length % (groupSize * 2);
     const nextElements: number[] = [];
     
@@ -535,7 +534,7 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
         nextNum++;
       }
       nextElements.push(nextNum);
-      lastNum = nextNum;
+      lastNum = nextNum; // Now this is allowed
     }
     
     return {
