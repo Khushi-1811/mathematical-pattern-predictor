@@ -210,3 +210,92 @@ export const checkPowerSequence = (sequence: number[]): [boolean, number] => {
   return [false, 0];
 };
 
+// New function to detect alternating increment/decrement patterns
+export const checkAlternatingDifference = (sequence: number[]): [boolean, number, number] => {
+  if (sequence.length < 4) return [false, 0, 0];
+  
+  const diffs = getSequenceDifferences(sequence);
+  
+  // Check if differences alternate between two values
+  const evenDiffs = diffs.filter((_, i) => i % 2 === 0);
+  const oddDiffs = diffs.filter((_, i) => i % 2 === 1);
+  
+  const areEvenDiffsSame = areAllValuesEqual(evenDiffs);
+  const areOddDiffsSame = areAllValuesEqual(oddDiffs);
+  
+  if (areEvenDiffsSame && areOddDiffsSame && 
+      Math.abs(evenDiffs[0] - oddDiffs[0]) > 0.01) { // Ensure they're different values
+    return [true, evenDiffs[0], oddDiffs[0]];
+  }
+  
+  return [false, 0, 0];
+};
+
+// Check if sequence has two interleaved subsequences
+export const checkInterleaved = (sequence: number[]): [boolean, string, string] => {
+  if (sequence.length < 6) return [false, '', ''];
+  
+  const odd = sequence.filter((_, i) => i % 2 === 0);
+  const even = sequence.filter((_, i) => i % 2 === 1);
+  
+  // Check if odd positions form an arithmetic sequence
+  const isOddArithmetic = checkArithmeticSequence(odd);
+  // Check if even positions form an arithmetic sequence
+  const isEvenArithmetic = checkArithmeticSequence(even);
+  
+  if (isOddArithmetic && isEvenArithmetic) {
+    const oddDiff = odd[1] - odd[0];
+    const evenDiff = even[1] - even[0];
+    return [true, `arithmetic(d=${oddDiff})`, `arithmetic(d=${evenDiff})`];
+  }
+  
+  // Check if odd positions form a geometric sequence
+  const isOddGeometric = checkGeometricSequence(odd);
+  // Check if even positions form a geometric sequence
+  const isEvenGeometric = checkGeometricSequence(even);
+  
+  if (isOddGeometric && isEvenGeometric) {
+    const oddRatio = odd[1] / odd[0];
+    const evenRatio = even[1] / even[0];
+    return [true, `geometric(r=${oddRatio.toFixed(2)})`, `geometric(r=${evenRatio.toFixed(2)})`];
+  }
+  
+  // Check if one is arithmetic and one is geometric
+  if (isOddArithmetic && isEvenGeometric) {
+    const oddDiff = odd[1] - odd[0];
+    const evenRatio = even[1] / even[0];
+    return [true, `arithmetic(d=${oddDiff})`, `geometric(r=${evenRatio.toFixed(2)})`];
+  }
+  
+  if (isOddGeometric && isEvenArithmetic) {
+    const oddRatio = odd[1] / odd[0];
+    const evenDiff = even[1] - even[0];
+    return [true, `geometric(r=${oddRatio.toFixed(2)})`, `arithmetic(d=${evenDiff})`];
+  }
+  
+  return [false, '', ''];
+};
+
+// Check for cyclic patterns (repeating sequences)
+export const checkCyclicPattern = (sequence: number[]): [boolean, number[], number] => {
+  if (sequence.length < 6) return [false, [], 0];
+  
+  // Try different cycle lengths
+  for (let cycleLength = 2; cycleLength <= Math.floor(sequence.length / 2); cycleLength++) {
+    let isCyclic = true;
+    const pattern = sequence.slice(0, cycleLength);
+    
+    for (let i = cycleLength; i < sequence.length; i++) {
+      if (Math.abs(sequence[i] - pattern[i % cycleLength]) > 0.0001) {
+        isCyclic = false;
+        break;
+      }
+    }
+    
+    if (isCyclic) {
+      return [true, pattern, cycleLength];
+    }
+  }
+  
+  return [false, [], 0];
+};
