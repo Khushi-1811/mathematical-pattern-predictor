@@ -354,3 +354,73 @@ export const checkSpecificPattern7108 = (sequence: number[]): boolean => {
   
   return false;
 };
+
+export const detectAlternatingPatternWithStep = (sequence: number[]): [boolean, number, number, number] => {
+  if (sequence.length < 4) return [false, 0, 0, 0];
+  
+  // Split into odd and even positions
+  const oddPositions = sequence.filter((_, i) => i % 2 === 0);
+  const evenPositions = sequence.filter((_, i) => i % 2 === 1);
+  
+  // Check if both sequences are arithmetic
+  if (oddPositions.length < 2 || evenPositions.length < 2) return [false, 0, 0, 0];
+  
+  const oddDiffs = getSequenceDifferences(oddPositions);
+  const evenDiffs = getSequenceDifferences(evenPositions);
+  
+  const isOddArithmetic = areAllValuesEqual(oddDiffs);
+  const isEvenArithmetic = areAllValuesEqual(evenDiffs);
+  
+  if (isOddArithmetic && isEvenArithmetic) {
+    const oddDiff = oddDiffs[0];
+    const evenDiff = evenDiffs[0];
+    
+    // Calculate constant step between the two sequences
+    const steps = [];
+    for (let i = 0; i < Math.min(oddPositions.length, evenPositions.length); i++) {
+      steps.push(evenPositions[i] - oddPositions[i]);
+    }
+    
+    if (areAllValuesEqual(steps)) {
+      return [true, oddDiff, evenDiff, steps[0]];
+    }
+  }
+  
+  return [false, 0, 0, 0];
+};
+
+export const generateNextAlternatingElements = (sequence: number[], oddDiff: number, evenDiff: number, step: number): number[] => {
+  const nextElements = [];
+  const lastIdx = sequence.length - 1;
+  
+  // Determine next three elements based on the pattern
+  if (lastIdx % 2 === 0) {
+    // Last element was in odd position (e.g., 9 in [7,10,8,11,9,12])
+    // Next element is in even position
+    const nextEven = sequence[lastIdx] + step;
+    nextElements.push(nextEven); // e.g., 9+3 = 12
+    
+    // Following element is in odd position
+    const nextOdd = sequence[lastIdx] + oddDiff;
+    nextElements.push(nextOdd); // e.g., 9+1 = 10
+    
+    // Last element in our prediction
+    const nextNextEven = nextOdd + step;
+    nextElements.push(nextNextEven); // e.g., 10+3 = 13
+  } else {
+    // Last element was in even position (e.g., 12 in [7,10,8,11,9,12])
+    // Next element is in odd position
+    const nextOdd = evenPositions[evenPositions.length - 1] - step + oddDiff;
+    nextElements.push(nextOdd); // e.g., 12-3+1 = 10
+    
+    // Following element is in even position
+    const nextEven = nextOdd + step;
+    nextElements.push(nextEven); // e.g., 10+3 = 13
+    
+    // Last element in our prediction
+    const nextNextOdd = nextOdd + oddDiff;
+    nextElements.push(nextNextOdd); // e.g., 10+1 = 11
+  }
+  
+  return nextElements;
+};

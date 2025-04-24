@@ -16,7 +16,9 @@ import {
   checkAlternatingDifference,
   checkInterleaved,
   checkCyclicPattern,
-  checkSpecificPattern7108
+  checkSpecificPattern7108,
+  detectAlternatingPatternWithStep,
+  generateNextAlternatingElements
 } from "./sequenceUtils";
 
 export const predictSequence = (sequence: number[]): PredictionResult => {
@@ -38,6 +40,25 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
       ruleDescription: 'Pattern with two interleaved arithmetic sequences: odd positions [7,8,9,...] and even positions [10,11,12,...]',
       formula: 'Odd positions: a_n = 7 + (n-1), Even positions: a_n = 10 + (n-1)',
       confidence: 0.99
+    };
+  }
+  
+  // Check for general alternating pattern with step differences
+  const [hasAlternatingPattern, oddDiff, evenDiff, step] = detectAlternatingPatternWithStep(sequence);
+  if (hasAlternatingPattern) {
+    // Generate predictions using our specialized function
+    const nextElements = generateNextAlternatingElements(sequence, oddDiff, evenDiff, step);
+    
+    // Extract odd and even positions for description
+    const oddPositions = sequence.filter((_, i) => i % 2 === 0);
+    const evenPositions = sequence.filter((_, i) => i % 2 === 1);
+    
+    return {
+      nextElements,
+      ruleType: 'alternating',
+      ruleDescription: `Two interleaved arithmetic sequences: odd positions [${oddPositions.join(',')},...] with diff=${oddDiff} and even positions [${evenPositions.join(',')},...] with diff=${evenDiff}, step=${step}`,
+      formula: `Odd positions: a_n = ${oddPositions[0]} + (n/2)×${oddDiff}, Even positions: a_n = ${evenPositions[0]} + (n/2)×${evenDiff}`,
+      confidence: 0.98
     };
   }
 
