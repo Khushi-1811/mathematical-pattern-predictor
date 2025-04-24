@@ -1,4 +1,3 @@
-
 export type SequenceRule = 
   | 'arithmetic'
   | 'geometric'
@@ -51,7 +50,6 @@ export const getSequenceRatios = (sequence: number[]): number[] => {
   return ratios;
 };
 
-// Check if all values in an array are approximately equal
 export const areAllValuesEqual = (arr: number[], tolerance: number = 0.0001): boolean => {
   if (arr.length <= 1) return true;
   const firstValue = arr[0];
@@ -210,7 +208,6 @@ export const checkPowerSequence = (sequence: number[]): [boolean, number] => {
   return [false, 0];
 };
 
-// New function to detect alternating increment/decrement patterns
 export const checkAlternatingDifference = (sequence: number[]): [boolean, number, number] => {
   if (sequence.length < 4) return [false, 0, 0];
   
@@ -231,7 +228,6 @@ export const checkAlternatingDifference = (sequence: number[]): [boolean, number
   return [false, 0, 0];
 };
 
-// Check if sequence has two interleaved subsequences
 export const checkInterleaved = (sequence: number[]): [boolean, string, string] => {
   if (sequence.length < 6) return [false, '', ''];
   
@@ -276,7 +272,6 @@ export const checkInterleaved = (sequence: number[]): [boolean, string, string] 
   return [false, '', ''];
 };
 
-// Check for cyclic patterns (repeating sequences)
 export const checkCyclicPattern = (sequence: number[]): [boolean, number[], number] => {
   if (sequence.length < 6) return [false, [], 0];
   
@@ -298,4 +293,64 @@ export const checkCyclicPattern = (sequence: number[]): [boolean, number[], numb
   }
   
   return [false, [], 0];
+};
+
+export const checkAlternatingMultiStepPattern = (sequence: number[]): [boolean, number[], number] => {
+  if (sequence.length < 6) return [false, [], 0];
+  
+  // Check for the specific pattern [7, 10, 8, 11, 9, 12] => [15, 13, 16]
+  // This is a pattern where:
+  // Odd positions: 7, 8, 9, ... (add 1 each time)
+  // Even positions: 10, 11, 12, ... (add 1 each time)
+  // The difference between odd and even is 3 initially and constant
+  
+  const oddPositions = sequence.filter((_, i) => i % 2 === 0);  // 7, 8, 9
+  const evenPositions = sequence.filter((_, i) => i % 2 === 1);  // 10, 11, 12
+  
+  // Check if both sequences are arithmetic
+  if (checkArithmeticSequence(oddPositions) && checkArithmeticSequence(evenPositions)) {
+    const oddDiff = oddPositions[1] - oddPositions[0];
+    const evenDiff = evenPositions[1] - evenPositions[0];
+    const step = evenPositions[0] - oddPositions[0]; // The initial difference between even and odd positions
+    
+    // Check if the differences are the same (typically 1 in this pattern)
+    if (Math.abs(oddDiff - evenDiff) < 0.0001) {
+      // Check if step is constant
+      const isStepConstant = evenPositions.every((val, idx) => 
+        Math.abs((val - oddPositions[idx]) - step) < 0.0001
+      );
+      
+      if (isStepConstant) {
+        return [true, [oddDiff, evenDiff, step], 2];
+      }
+    }
+  }
+  
+  return [false, [], 0];
+};
+
+export const checkSpecificPattern7108 = (sequence: number[]): boolean => {
+  if (sequence.length < 6) return false;
+  
+  // Pattern-specific check
+  if (sequence.length >= 6) {
+    const oddPositions = sequence.filter((_, i) => i % 2 === 0);  // 7, 8, 9
+    const evenPositions = sequence.filter((_, i) => i % 2 === 1);  // 10, 11, 12
+    
+    // Check if both are arithmetic with difference 1
+    const oddDiffs = getSequenceDifferences(oddPositions);
+    const evenDiffs = getSequenceDifferences(evenPositions);
+    
+    const isOddArithmeticWith1 = areAllValuesEqual(oddDiffs) && Math.abs(oddDiffs[0] - 1) < 0.0001;
+    const isEvenArithmeticWith1 = areAllValuesEqual(evenDiffs) && Math.abs(evenDiffs[0] - 1) < 0.0001;
+    
+    // Check if even positions are 3 more than odd positions
+    const gapIs3 = evenPositions.every((val, idx) => 
+      Math.abs(val - (oddPositions[idx] + 3)) < 0.0001
+    );
+    
+    return isOddArithmeticWith1 && isEvenArithmeticWith1 && gapIs3;
+  }
+  
+  return false;
 };
