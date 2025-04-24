@@ -36,6 +36,13 @@ This sequence prediction system implements algorithmic intelligence techniques t
    - Hybrid pattern recognition
    - Fallback mechanisms
 
+### Indirect AI/ML Techniques
+- **Algorithmic Intelligence**
+  - Mimics pattern recognition principles
+  - Implements rule-based reasoning
+  - Generates predictive insights
+  - Provides explainable outcomes
+
 ### Key Differences from Traditional ML
 - No neural networks or training data
 - Deterministic rule-based predictions
