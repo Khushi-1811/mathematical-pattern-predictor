@@ -545,38 +545,43 @@ export const detectAlternatingDifferencePattern = (sequence: number[]): [boolean
 };
 
 export const checkConsecutiveEvenOddPattern = (sequence: number[]): [boolean, 'even-first' | 'odd-first', number] => {
-  if (sequence.length < 4) return [false, 'even-first', 0];
+  if (sequence.length < 3) return [false, 'even-first', 0];
   
-  let evenCount = 0;
-  let oddCount = 0;
-  let currentType: 'even' | 'odd' = sequence[0] % 2 === 0 ? 'even' : 'odd';
-  let switchPoint = -1;
+  // Check if first two numbers are both even or both odd
+  const isFirstEven = sequence[0] % 2 === 0;
+  const isSecondEven = sequence[1] % 2 === 0;
   
-  // Count consecutive numbers of same type from start
-  for (let i = 0; i < sequence.length; i++) {
-    const isEven = sequence[i] % 2 === 0;
-    
-    if ((isEven && currentType === 'even') || (!isEven && currentType === 'odd')) {
-      if (currentType === 'even') evenCount++;
-      else oddCount++;
+  // If first two are not of the same type, not a valid pattern
+  if (isFirstEven !== isSecondEven) return [false, 'even-first', 0];
+  
+  // Determine pattern type and group size
+  const startType = isFirstEven ? 'even-first' : 'odd-first';
+  let currentGroupSize = 1;
+  
+  // Count numbers of same type from start
+  for (let i = 1; i < sequence.length; i++) {
+    const isCurrentEven = sequence[i] % 2 === 0;
+    if (isCurrentEven === isFirstEven) {
+      currentGroupSize++;
     } else {
-      if (switchPoint === -1) {
-        switchPoint = i;
-        currentType = isEven ? 'even' : 'odd';
-        if (isEven) evenCount++;
-        else oddCount++;
-      } else {
-        // Pattern broken
-        return [false, 'even-first', 0];
-      }
+      break;
     }
   }
   
-  if (switchPoint > 0) {
-    const startType = sequence[0] % 2 === 0 ? 'even-first' : 'odd-first';
-    const groupSize = Math.max(evenCount, oddCount);
-    return [true, startType, groupSize];
+  // Verify pattern continues correctly
+  let isValid = true;
+  let position = currentGroupSize;
+  let expectEven = !isFirstEven;
+  
+  while (position < sequence.length) {
+    const currentGroup = sequence.slice(position, position + currentGroupSize);
+    if (currentGroup.some(num => (num % 2 === 0) !== expectEven)) {
+      isValid = false;
+      break;
+    }
+    position += currentGroupSize;
+    expectEven = !expectEven;
   }
   
-  return [false, 'even-first', 0];
+  return isValid ? [true, startType, currentGroupSize] : [false, 'even-first', 0];
 };

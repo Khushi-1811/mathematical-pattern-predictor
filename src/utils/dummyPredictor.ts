@@ -519,29 +519,37 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
   // Check for consecutive even/odd pattern
   const [hasConsecutivePattern, startType, groupSize] = checkConsecutiveEvenOddPattern(sequence);
   if (hasConsecutivePattern) {
-    let lastNum = sequence[sequence.length - 1]; // Changed from const to let
-    const currentGroupPos = sequence.length % (groupSize * 2);
+    let lastNum = sequence[sequence.length - 1];
+    const currentGroupPos = Math.floor(sequence.length / groupSize) * groupSize;
     const nextElements: number[] = [];
     
-    // Find next three numbers maintaining the pattern
+    // Find last complete group's last number
+    const lastGroupStart = currentGroupPos - groupSize;
+    const lastCompleteGroupIsEven = lastGroupStart >= 0 && 
+      (sequence[lastGroupStart] % 2 === 0);
+    
+    // Determine what type the next group should be
+    const nextGroupShouldBeEven = lastCompleteGroupIsEven ? false : true;
+    
+    // Find next elements
+    let nextNum = lastNum;
     for (let i = 0; i < 3; i++) {
-      const pos = (currentGroupPos + i) % (groupSize * 2);
-      const shouldBeEven = startType === 'even-first' ? 
-        (pos < groupSize) : (pos >= groupSize);
-      
-      let nextNum = lastNum + 1;
-      while ((nextNum % 2 === 0) !== shouldBeEven) {
-        nextNum++;
+      const isNewGroup = i % groupSize === 0;
+      if (isNewGroup) {
+        nextNum = nextGroupShouldBeEven ? 
+          findNextEven(lastNum) : findNextOdd(lastNum);
+      } else {
+        nextNum = nextGroupShouldBeEven ? 
+          findNextEven(nextNum) : findNextOdd(nextNum);
       }
       nextElements.push(nextNum);
-      lastNum = nextNum; // Now this is allowed
     }
     
     return {
       nextElements,
       ruleType: 'alternating',
-      ruleDescription: `Consecutive ${startType === 'even-first' ? 'even then odd' : 'odd then even'} numbers in groups of ${groupSize}`,
-      formula: `Groups of ${groupSize} ${startType === 'even-first' ? 'even then odd' : 'odd then even'} numbers`,
+      ruleDescription: `Consecutive ${groupSize} ${startType === 'even-first' ? 'even then odd' : 'odd then even'} numbers`,
+      formula: `Groups of ${groupSize} consecutive ${startType === 'even-first' ? 'even then odd' : 'odd then even'} numbers`,
       confidence: 0.95
     };
   }
@@ -560,3 +568,16 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
     confidence: 0.5
   };
 };
+
+// Helper functions for finding next even/odd numbers
+function findNextEven(num: number): number {
+  let next = num + 1;
+  while (next % 2 !== 0) next++;
+  return next;
+}
+
+function findNextOdd(num: number): number {
+  let next = num + 1;
+  while (next % 2 === 0) next++;
+  return next;
+}
