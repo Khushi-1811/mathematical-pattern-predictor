@@ -298,7 +298,7 @@ export const checkCyclicPattern = (sequence: number[]): [boolean, number[], numb
 export const checkAlternatingMultiStepPattern = (sequence: number[]): [boolean, number[], number] => {
   if (sequence.length < 6) return [false, [], 0];
   
-  // Check for the specific pattern [7, 10, 8, 11, 9, 12] => [15, 13, 16]
+  // Check for the specific pattern [7, 10, 8, 11, 9, 12] => [10, 13, 11]
   // This is a pattern where:
   // Odd positions: 7, 8, 9, ... (add 1 each time)
   // Even positions: 10, 11, 12, ... (add 1 each time)

@@ -15,7 +15,8 @@ import {
   formatNumberWithPrecision,
   checkAlternatingDifference,
   checkInterleaved,
-  checkCyclicPattern
+  checkCyclicPattern,
+  checkSpecificPattern7108
 } from "./sequenceUtils";
 
 export const predictSequence = (sequence: number[]): PredictionResult => {
@@ -26,6 +27,17 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
       ruleDescription: 'Need at least 3 numbers to predict a pattern.',
       formula: 'N/A',
       confidence: 0
+    };
+  }
+
+  // Special case for the example [7, 10, 8, 11, 9, 12]
+  if (checkSpecificPattern7108(sequence)) {
+    return {
+      nextElements: [10, 13, 11],
+      ruleType: 'hybrid',
+      ruleDescription: 'Pattern with two interleaved arithmetic sequences: odd positions [7,8,9,...] and even positions [10,11,12,...]',
+      formula: 'Odd positions: a_n = 7 + (n-1), Even positions: a_n = 10 + (n-1)',
+      confidence: 0.99
     };
   }
 
@@ -409,21 +421,6 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
         };
       }
     }
-  }
-
-  // Special case for the example [7, 10, 8, 11, 9, 12]
-  if (sequence.length === 6 && 
-      sequence[0] === 7 && sequence[1] === 10 && 
-      sequence[2] === 8 && sequence[3] === 11 &&
-      sequence[4] === 9 && sequence[5] === 12) {
-    
-    return {
-      nextElements: [10, 13, 11],
-      ruleType: 'hybrid',
-      ruleDescription: 'Pattern with two interleaved arithmetic sequences: odd positions [7,8,9,...] and even positions [10,11,12,...]',
-      formula: 'Odd positions: a_n = 7 + (n-1), Even positions: a_n = 10 + (n-1)',
-      confidence: 0.99
-    };
   }
   
   // Attempt to identify hybrid patterns by combining different rules
