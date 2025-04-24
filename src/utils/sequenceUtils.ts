@@ -393,6 +393,10 @@ export const generateNextAlternatingElements = (sequence: number[], oddDiff: num
   const nextElements = [];
   const lastIdx = sequence.length - 1;
   
+  // Get the odd and even positions from the sequence for reference
+  const oddPositions = sequence.filter((_, i) => i % 2 === 0);
+  const evenPositions = sequence.filter((_, i) => i % 2 === 1);
+  
   // Determine next three elements based on the pattern
   if (lastIdx % 2 === 0) {
     // Last element was in odd position (e.g., 9 in [7,10,8,11,9,12])
