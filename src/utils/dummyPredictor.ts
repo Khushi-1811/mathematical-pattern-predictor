@@ -516,7 +516,7 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
     }
   }
   
-  // Check for consecutive even/odd pattern
+  // Check for consecutive even/odd pattern - IMPROVED VERSION
   const [hasConsecutivePattern, startType, groupSize] = checkConsecutiveEvenOddPattern(sequence);
   if (hasConsecutivePattern) {
     let lastNum = sequence[sequence.length - 1];
@@ -532,17 +532,30 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
     const nextGroupShouldBeEven = lastCompleteGroupIsEven ? false : true;
     
     // Find next elements
-    let nextNum = lastNum;
     for (let i = 0; i < 3; i++) {
-      const isNewGroup = i % groupSize === 0;
+      const isNewGroup = (sequence.length + i) % groupSize === 0;
       if (isNewGroup) {
-        nextNum = nextGroupShouldBeEven ? 
-          findNextEven(lastNum) : findNextOdd(lastNum);
+        // Start of a new group, reset to match the pattern
+        if (nextGroupShouldBeEven) {
+          // Find next even number
+          lastNum = findNextEven(lastNum);
+        } else {
+          // Find next odd number
+          lastNum = findNextOdd(lastNum);
+        }
       } else {
-        nextNum = nextGroupShouldBeEven ? 
-          findNextEven(nextNum) : findNextOdd(nextNum);
+        // Continue the current group pattern
+        const currentGroupIsEven = (Math.floor((sequence.length + i - 1) / groupSize) % 2 === 0) ? 
+          (startType === 'even-first') : 
+          (startType === 'odd-first');
+        
+        if (currentGroupIsEven) {
+          lastNum = findNextEven(lastNum);
+        } else {
+          lastNum = findNextOdd(lastNum);
+        }
       }
-      nextElements.push(nextNum);
+      nextElements.push(lastNum);
     }
     
     return {
