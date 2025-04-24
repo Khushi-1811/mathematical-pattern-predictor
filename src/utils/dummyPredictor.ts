@@ -1,4 +1,3 @@
-
 import { 
   PredictionResult, 
   SequenceRule, 
@@ -21,7 +20,8 @@ import {
   detectAlternatingPatternWithStep,
   generateNextAlternatingElements,
   detectComplexAlternatingPattern,
-  detectAlternatingDifferencePattern
+  detectAlternatingDifferencePattern,
+  checkConsecutiveEvenOddPattern
 } from "./sequenceUtils";
 
 export const predictSequence = (sequence: number[]): PredictionResult => {
@@ -516,6 +516,37 @@ export const predictSequence = (sequence: number[]): PredictionResult => {
     }
   }
   
+  // Check for consecutive even/odd pattern
+  const [hasConsecutivePattern, startType, groupSize] = checkConsecutiveEvenOddPattern(sequence);
+  if (hasConsecutivePattern) {
+    const lastNum = sequence[sequence.length - 1];
+    const isLastEven = lastNum % 2 === 0;
+    const currentGroupPos = sequence.length % (groupSize * 2);
+    const nextElements: number[] = [];
+    
+    // Find next three numbers maintaining the pattern
+    for (let i = 0; i < 3; i++) {
+      const pos = (currentGroupPos + i) % (groupSize * 2);
+      const shouldBeEven = startType === 'even-first' ? 
+        (pos < groupSize) : (pos >= groupSize);
+      
+      let nextNum = lastNum + 1;
+      while ((nextNum % 2 === 0) !== shouldBeEven) {
+        nextNum++;
+      }
+      nextElements.push(nextNum);
+      lastNum = nextNum;
+    }
+    
+    return {
+      nextElements,
+      ruleType: 'alternating',
+      ruleDescription: `Consecutive ${startType === 'even-first' ? 'even then odd' : 'odd then even'} numbers in groups of ${groupSize}`,
+      formula: `Groups of ${groupSize} ${startType === 'even-first' ? 'even then odd' : 'odd then even'} numbers`,
+      confidence: 0.95
+    };
+  }
+
   // Fallback to linear prediction based on last difference
   const diff = sequence[sequence.length - 1] - sequence[sequence.length - 2];
   return {

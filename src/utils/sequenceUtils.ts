@@ -543,3 +543,40 @@ export const detectAlternatingDifferencePattern = (sequence: number[]): [boolean
   
   return [false, [], []];
 };
+
+export const checkConsecutiveEvenOddPattern = (sequence: number[]): [boolean, 'even-first' | 'odd-first', number] => {
+  if (sequence.length < 4) return [false, 'even-first', 0];
+  
+  let evenCount = 0;
+  let oddCount = 0;
+  let currentType: 'even' | 'odd' = sequence[0] % 2 === 0 ? 'even' : 'odd';
+  let switchPoint = -1;
+  
+  // Count consecutive numbers of same type from start
+  for (let i = 0; i < sequence.length; i++) {
+    const isEven = sequence[i] % 2 === 0;
+    
+    if ((isEven && currentType === 'even') || (!isEven && currentType === 'odd')) {
+      if (currentType === 'even') evenCount++;
+      else oddCount++;
+    } else {
+      if (switchPoint === -1) {
+        switchPoint = i;
+        currentType = isEven ? 'even' : 'odd';
+        if (isEven) evenCount++;
+        else oddCount++;
+      } else {
+        // Pattern broken
+        return [false, 'even-first', 0];
+      }
+    }
+  }
+  
+  if (switchPoint > 0) {
+    const startType = sequence[0] % 2 === 0 ? 'even-first' : 'odd-first';
+    const groupSize = Math.max(evenCount, oddCount);
+    return [true, startType, groupSize];
+  }
+  
+  return [false, 'even-first', 0];
+};
