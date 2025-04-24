@@ -3,13 +3,13 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { PredictionResult } from '@/utils/sequenceUtils';
+import type { PredictionResult as PredictionResultType } from '@/utils/sequenceUtils';
 import SequenceChart from './SequenceChart';
 import { formatNumberWithPrecision } from '@/utils/sequenceUtils';
 
 interface PredictionResultProps {
   sequence: number[];
-  result: PredictionResult;
+  result: PredictionResultType;
 }
 
 const PredictionResult: React.FC<PredictionResultProps> = ({ sequence, result }) => {
